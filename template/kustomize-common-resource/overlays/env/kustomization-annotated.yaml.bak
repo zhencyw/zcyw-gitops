@@ -1,0 +1,25 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# ─── 全局命名空间：所有资源统一注入此 namespace。所有从 base 继承来的资源都会被覆盖/填充成这个 namespace。───
+namespace: projectNameEnv
+
+# ─── 旧写法（已弃用）：Strategic Merge 补丁列表 ───
+# 保留作为参考，已迁移到下方 patches 块
+# patchesStrategicMerge:
+#   - deployment.yaml
+#   - ingress.yaml
+#   - service.yaml
+#   - configmap.yaml
+#   - secret.yaml
+
+# ─── 统一标签：注入到所有资源的 metadata.labels ───
+commonLabels:
+  app: serviceNameEnv                         # 应用名称，用于 selector 匹配
+  app.kubernetes.io/name: projectNameEnv      # K8s 标准标签：服务名
+  app.kubernetes.io/version: v1               # K8s 标准标签：应用版本
+
+# ─── 基座：继承 base 目录的所有资源 ───
+resources: # 旧字段 bases
+  - ../../base                   # 加载 base/kustomization.yaml
+

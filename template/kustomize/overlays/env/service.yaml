@@ -1,0 +1,10 @@
+﻿kind: Service
+apiVersion: v1
+metadata:
+  name: serviceNameEnv
+spec:
+  ports:
+  - name: http-0
+    protocol: TCP
+    port: portNumberEnv
+    targetPort: portNumberEnv

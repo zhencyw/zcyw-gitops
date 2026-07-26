@@ -1,0 +1,26 @@
+﻿apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cdAppNameEnv
+  namespace: argo-cd
+spec:
+  destination:
+    name: targetClusterEnv
+    namespace: projectNameEnv
+  project: appNamespaceEnv
+  source:
+    path: sourceFilePathEnv
+    # repoURL: http://gitlab.yunwdh.cn/root/gitops.git
+    repoURL: http://gitlab.yunwdh.cn/root/gitops.git
+    targetRevision: master
+  syncPolicy:
+    # 自动同步策略
+    # automated:
+    #   prune: true
+    #   selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+    - ApplyOutOfSyncOnly=true
+    - Prune=true
+    - PruneLast=true
+    - PrunePropagationPolicy=background

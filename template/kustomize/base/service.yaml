@@ -1,0 +1,18 @@
+﻿kind: Service
+apiVersion: v1
+metadata:
+  name: serviceNameEnv
+  annotations:
+    kubesphere.io/creator: admin
+    kubesphere.io/serviceType: statelessservice
+    servicemesh.kubesphere.io/enabled: 'true'
+  labels:
+    appName: serviceNameEnv
+spec:
+  ports:
+  selector:
+  type: ClusterIP
+  sessionAffinity: None
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack

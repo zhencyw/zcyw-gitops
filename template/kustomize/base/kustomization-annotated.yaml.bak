@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# ─── 资源清单：纳入 Kustomize 管理的 YAML 文件 ───
+resources: # 旧字段 bases
+  - deployment.yaml      # Kubernetes Deployment
+  - service.yaml         # Kubernetes Service (ClusterIP)
+  - configmap.yaml       # Kubernetes ConfigMap (通用配置)
+  - secret.yaml          # Kubernetes Secret (镜像仓库凭证)
+  #- ingress.yaml        # 暂不引入，由 overlay 决定
+  #- hpa.yaml            # 暂不引入，由 overlay 决定
+
+# ─── 统一标签：自动注入到以上所有资源的 metadata.labels ───
+commonLabels:
+  k8s.cmdb.layer: svc   # CMDB 分层标记：svc=服务层（应用资源）

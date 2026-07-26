@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: cdAppNameEnv
+  namespace: argo-cd
+spec:
+  generators:
+    - git:
+        repoURL: http://gitlab.yunwdh.cn/root/gitops.git
+        revision: master
+        files:
+        - path: "appNamespaceEnv/appNameEnv/applicationset-config/**/config.json"
+  template:
+    metadata:
+      name: '{{cluster.appname}}'
+    spec:
+      project: appNamespaceEnv
+      source:
+        repoURL: http://gitlab.yunwdh.cn/root/gitops.git
+        targetRevision: master
+        path: "{{cluster.overlay}}"
+      destination:
+        name: '{{cluster.server}}'
+        namespace: projectNameEnv
+      syncPolicy:
+        syncOptions:
+        - CreateNamespace=true
+        - ApplyOutOfSyncOnly=true
+        - Prune=true
+        - PruneLast=true
+        - PrunePropagationPolicy=background

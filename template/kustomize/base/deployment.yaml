@@ -1,0 +1,95 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: serviceNameEnv
+  labels:
+    appName: serviceNameEnv
+    version: buildIdEnv # 用于后续灰度，该字段没有实际作用，只做标识
+  annotations:
+    kubesphere.io/creator: admin
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      appName: serviceNameEnv
+  template:
+    metadata:
+      labels:
+        appName: serviceNameEnv
+        version: buildIdEnv # 用于后续灰度
+    spec:
+      volumes:
+        - name: host-time
+          hostPath:
+            path: /etc/localtime
+            type: ''
+      containers:
+        - name: serviceNameEnv
+          image: 'cd-harbor.yunwdh.cn/library/serviceNameEnv:latest'
+          ports:
+          - containerPort: portNumberEnv
+            name: http-0
+            protocol: TCP
+          env:
+            - name: POD_LABEL_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['app']
+          envFrom:
+            - configMapRef:
+                name: common-env
+          resources:
+            limits:
+              cpu: '2'
+              memory: 1Gi
+            requests:
+              cpu: 50m
+              memory: 200Mi
+          volumeMounts:
+            - name: host-time
+              readOnly: true
+              mountPath: /etc/localtime
+          livenessProbe:
+            tcpSocket:
+              port: portNumberEnv
+            timeoutSeconds: 3
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 3
+          startupProbe:
+            tcpSocket:
+              port: portNumberEnv
+            timeoutSeconds: 3
+            periodSeconds: 15
+            failureThreshold: 10
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: Always
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      serviceAccountName: default
+      serviceAccount: default
+      securityContext: {}
+      imagePullSecrets:
+        - name: registry
+      schedulerName: default-scheduler
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                        - serviceNameEnv
+                topologyKey: topology.kubernetes.io/zone-name
+              weight: 100
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600

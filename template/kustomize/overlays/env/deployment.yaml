@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: serviceNameEnv # necessary for Kustomize identification
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: serviceNameEnv
+        ports:
+        - name: http-0
+          containerPort: portNumberEnv
+          protocol: TCP
+        livenessProbe:
+          tcpSocket:
+            port: portNumberEnv
+        startupProbe:
+          tcpSocket:
+            port: portNumberEnv
+

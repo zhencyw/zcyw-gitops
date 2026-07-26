@@ -1,0 +1,7 @@
+{
+    "cluster": {
+      "appname": "applicationNameEnv",
+      "server": "targetClusterEnv",
+      "overlay": "sourceFilePathEnv"
+    }
+}

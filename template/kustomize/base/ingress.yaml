@@ -1,0 +1,57 @@
+﻿kind: Ingress
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: serviceNameEnv
+  labels:
+  annotations:
+    # 跨域配置
+    nginx.ingress.kubernetes.io/cors-allow-origin: $http_origin # 允许的源url # 也可写通配符 *
+    nginx.ingress.kubernetes.io/cors-allow-methods: "*" # 允许的方法 # 或写其他具体GET, POST, OPTIONS等代替
+    nginx.ingress.kubernetes.io/cors-allow-headers: "Content-Type" # 允许的请求头
+    nginx.ingress.kubernetes.io/enable-cors: "true" # 启用跨域
+    nginx.ingress.kubernetes.io/proxy-body-size: "100M" # 允许100M文件上传
+
+    # 超时配置
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "300" # 与后端建立连接超时
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300" # 读取后端响应超时
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300" # 向客户端发送响应超时
+    nginx.ingress.kubernetes.io/client-header-timeout: "300" # 等待客户端发送请求头超时
+    nginx.ingress.kubernetes.io/client-body-timeout: "300" # 等待客户端发送请求体超时
+
+    # 其他常用配置
+    nginx.ingress.kubernetes.io/service-upstream: 'true' # nginx-ingress 默认通过 Pod IP 直接转发流量，开启后改为走 Service 的 ClusterIP
+    nginx.ingress.kubernetes.io/upstream-vhost: serviceNameEnv.projectNameEnv.svc.cluster.local # 重写发给后端的 Host 请求头
+    nginx.ingress.kubernetes.io/use-regex: "true" # 允许 Ingress path 使用正则表达式匹配
+    nginx.ingress.kubernetes.io/proxy_set_header: Connection "Upgrade" # 支持 WebSocket 连接
+
+    # 限速
+    # nginx.ingress.kubernetes.io/proxy-rate-limit: "1024k" # 单连接限速1MB/s
+    # nginx.ingress.kubernetes.io/proxy-rate-limit-after: "10m" # 前10M不限速
+
+    # 重写第一种写法
+    # nginx.ingress.kubernetes.io/rewrite-target: "$1" 
+    # nginx.ingress.kubernetes.io/configuration-snippet: |
+    #   rewrite /account/(.*)  /$1 break;
+
+    # 重写第二种写法
+    # nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  rules:
+    - host: ingressHostEnv
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: serviceNameEnv
+                port:
+                  number: portNumberEnv
+          # 重写第二种写法
+          # - path: linkwe-file(/|$)(.*)
+          #   pathType: ImplementationSpecific
+          #   backend:
+          #     service:
+          #       name: linkwe-file
+          #       port:
+          #         number: 80
